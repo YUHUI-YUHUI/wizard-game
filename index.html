@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧙 巫师牌 Online</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a472a 0%, #2d5a3f 100%);
+      min-height: 100vh;
+      color: white;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    /* 主页样式 */
+    .home-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .home-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .home-card h1 {
+      margin-bottom: 10px;
+    }
+    
+    .home-card p {
+      opacity: 0.8;
+      margin-bottom: 30px;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.3);
+      font-size: 16px;
+      background: rgba(255,255,255,0.95);
+      color: #1a1a2e;
+      margin-bottom: 15px;
+    }
+    
+    input[type="text"]::placeholder {
+      color: #666;
+    }
+    
+    .btn {
+      padding: 15px 30px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 100%;
+    }
+    
+    .btn-success {
+      background: #4ade80;
+      color: #1a472a;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+    }
+    
+    .join-row {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .join-row input {
+      flex: 1;
+      margin-bottom: 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .error-msg {
+      color: #f87171;
+      margin-top: 15px;
+    }
+    
+    /* 大厅样式 */
+    .lobby-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .lobby-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .room-code-box {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .room-code-box .label {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    
+    .room-code-box .code {
+      font-size: 36px;
+      font-weight: bold;
+      letter-spacing: 8px;
+    }
+    
+    .room-code-box .hint {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-top: 5px;
+    }
+    
+    .player-list {
+      margin-bottom: 20px;
+    }
+    
+    .player-item {
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .player-item.me {
+      background: rgba(255,215,0,0.2);
+    }
+    
+    .host-badge {
+      font-size: 12px;
+      background: #ffd700;
+      color: #1a1a2e;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    
+    /* 游戏界面样式 */
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 10px 20px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .turn-indicator {
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    
+    .turn-indicator.my-turn {
+      background: #ffd700;
+      color: #1a1a2e;
+      font-weight: bold;
+    }
+    
+    .score-board {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .player-score {
+      text-align: center;
+      padding: 5px 15px;
+      border-radius: 8px;
+    }
+    
+    .player-score.current {
+      background: rgba(255,215,0,0.3);
+    }
+    
+    .player-score.me {
+      border: 2px solid rgba(100,200,255,0.5);
+      background: rgba(100,200,255,0.2);
+    }
+    
+    .player-score .name {
+      font-weight: bold;
+    }
+    
+    .player-score .stats {
+      font-size: 14px;
+    }
+    
+    .trick-area {
+      background: rgba(0,0,0,0.3);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 15px;
+      min-height: 160px;
+    }
+    
+    .trick-area .title {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    
+    .trick-cards {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .trick-card-wrapper {
+      text-align: center;
+    }
+    
+    .trick-card-wrapper .player-name {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    
+    /* 卡牌样式 */
+    .card {
+      width: 70px;
+      height: 100px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    
+    .card.small {
+      width: 50px;
+      height: 75px;
+      font-size: 14px;
+    }
+    
+    .card.normal {
+      background: white;
+    }
+    
+    .card.wizard {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .card.jester {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+    
+    .card.selected {
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 10px #ffd700;
+      transform: translateY(-10px);
+    }
+    
+    .card.disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    
+    .card .rank {
+      font-size: 20px;
+    }
+    
+    .card .suit {
+      font-size: 28px;
+    }
+    
+    .card.small .rank {
+      font-size: 14px;
+    }
+    
+    .card.small .suit {
+      font-size: 20px;
+    }
+    
+    .card .special-icon {
+      font-size: 32px;
+    }
+    
+    .card .special-name {
+      font-size: 12px;
+    }
+    
+    .card.small .special-icon {
+      font-size: 24px;
+    }
+    
+    .card.small .special-name {
+      font-size: 10px;
+    }
+    
+    .suit-spade, .suit-club {
+      color: #1a1a2e;
+    }
+    
+    .suit-heart, .suit-diamond {
+      color: #e63946;
+    }
+    
+    /* 叫牌区域 */
+    .bid-area {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .bid-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    
+    .bid-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .bid-btn:disabled {
+      background: #666;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* 手牌区域 */
+    .hand-area {
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    
+    .hand-area .title {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    
+    .hand-cards {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    
+    .play-hint {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    
+    /* 结算界面 */
+    .round-end, .game-end {
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .score-table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    
+    .score-table th, .score-table td {
+      padding: 10px;
+    }
+    
+    .score-table .positive {
+      color: #4ade80;
+      font-weight: bold;
+    }
+    
+    .score-table .negative {
+      color: #f87171;
+      font-weight: bold;
+    }
+    
+    .final-ranking {
+      margin-top: 20px;
+    }
+    
+    .rank-item {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .rank-item.first {
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+      color: #1a1a2e;
+    }
+    
+    .rank-item.me {
+      background: rgba(100,200,255,0.2);
+    }
+    
+    .rank-item:not(.first):not(.me) {
+      background: rgba(0,0,0,0.2);
+    }
+    
+    .rank-icon {
+      font-size: 24px;
+    }
+    
+    .rank-name {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .rank-score {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    /* 规则说明 */
+    details {
+      margin-top: 30px;
+      text-align: left;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    
+    details summary {
+      cursor: pointer;
+    }
+    
+    details p {
+      margin: 5px 0;
+      line-height: 1.6;
+    }
+    
+    .waiting-msg {
+      padding: 15px;
+      opacity: 0.8;
+    }
+    
+    .trump-suit {
+      font-size: 24px;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <script>
+    // Firebase 配置
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-uJI8ORwdGI-slYoa0Qo4EGHsew3odWM",
+      authDomain: "wizard-game-8909d.firebaseapp.com",
+      databaseURL: "https://wizard-game-8909d-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "wizard-game-8909d",
+      storageBucket: "wizard-game-8909d.firebasestorage.app",
+      messagingSenderId: "819480038608",
+      appId: "1:819480038608:web:6fbc646f35ccc4184b62d5",
+      measurementId: "G-PJF0052EFR"
+    };
+
+    // 初始化 Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 游戏常量
+    const SUITS = ['♠', '♥', '♦', '♣'];
+    const SUIT_COLORS = { '♠': 'suit-spade', '♥': 'suit-heart', '♦': 'suit-diamond', '♣': 'suit-club' };
+    const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+    // 游戏状态
+    let playerId = sessionStorage.getItem('wizardPlayerId');
+    if (!playerId) {
+      playerId = 'player_' + Math.random().toString(36).substr(2, 9);
+      sessionStorage.setItem('wizardPlayerId', playerId);
+    }
+    
+    let playerName = '';
+    let roomCode = '';
+    let gameState = null;
+    let myIndex = -1;
+    let selectedCard = null;
+    let unsubscribe = null;
+
+    // 生成房间码
+    function generateRoomCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return code;
+    }
+
+    // 创建牌组
+    function createDeck() {
+      const deck = [];
+      for (let i = 0; i < 4; i++) {
+        deck.push({ type: 'wizard', id: `wizard-${i}` });
+      }
+      for (let i = 0; i < 4; i++) {
+        deck.push({ type: 'jester', id: `jester-${i}` });
+      }
+      for (const suit of SUITS) {
+        for (const rank of RANKS) {
+          deck.push({
+            type: 'normal',
+            suit,
+            rank,
+            id: `${suit}-${rank}`,
+            value: RANKS.indexOf(rank)
+          });
+        }
+      }
+      return deck;
+    }
+
+    // 带种子的随机数
+    function seededRandom(seed) {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+
+    // 洗牌
+    function shuffleDeck(deck, seed) {
+      const shuffled = [...deck];
+      let currentSeed = seed;
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRandom(currentSeed++) * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    // 计算分数
+    function calculateScore(bid, tricks) {
+      if (bid === tricks) {
+        return 20 + tricks * 10;
+      } else {
+        return -Math.abs(bid - tricks) * 10;
+      }
+    }
+
+    // 判断一墩赢家
+    function determineTrickWinner(trick, trumpSuit) {
+      const firstWizardIndex = trick.findIndex(play => play.card.type === 'wizard');
+      if (firstWizardIndex !== -1) return firstWizardIndex;
+
+      let maxTrumpValue = -1;
+      let trumpWinnerIndex = -1;
+      for (let i = 0; i < trick.length; i++) {
+        const card = trick[i].card;
+        if (card.type === 'normal' && card.suit === trumpSuit && card.value > maxTrumpValue) {
+          maxTrumpValue = card.value;
+          trumpWinnerIndex = i;
+        }
+      }
+      if (trumpWinnerIndex !== -1) return trumpWinnerIndex;
+
+      let effectiveLeadSuit = null;
+      for (const play of trick) {
+        if (play.card.type === 'normal') {
+          effectiveLeadSuit = play.card.suit;
+          break;
+        }
+      }
+
+      if (effectiveLeadSuit) {
+        let maxLeadValue = -1;
+        let leadWinnerIndex = 0;
+        for (let i = 0; i < trick.length; i++) {
+          const card = trick[i].card;
+          if (card.type === 'normal' && card.suit === effectiveLeadSuit && card.value > maxLeadValue) {
+            maxLeadValue = card.value;
+            leadWinnerIndex = i;
+          }
+        }
+        return leadWinnerIndex;
+      }
+
+      return 0;
+    }
+
+    // 发牌
+    function dealCards(state, roundNum, dealerNum) {
+      const deck = shuffleDeck(createDeck(), state.seed + roundNum);
+      const cardsPerPlayer = roundNum;
+      const numPlayers = state.players.length;
+
+      state.players = state.players.map((p, i) => ({
+        ...p,
+        hand: deck.slice(i * cardsPerPlayer, (i + 1) * cardsPerPlayer),
+        bid: null,
+        tricks: 0,
+      }));
+
+      const trumpIndex = numPlayers * cardsPerPlayer;
+      if (trumpIndex < deck.length) {
+        state.trumpCard = deck[trumpIndex];
+        if (state.trumpCard.type === 'wizard') {
+          state.trumpSuit = SUITS[Math.floor(seededRandom(state.seed + roundNum + 1000) * 4)];
+        } else if (state.trumpCard.type === 'jester') {
+          state.trumpSuit = null;
+        } else {
+          state.trumpSuit = state.trumpCard.suit;
+        }
+      } else {
+        state.trumpCard = null;
+        state.trumpSuit = null;
+      }
+
+      state.round = roundNum;
+      state.dealer = dealerNum;
+      state.currentPlayer = (dealerNum + 1) % numPlayers;
+      state.currentTrick = [];
+      state.leadSuit = null;
+      state.phase = 'bidding';
+    }
+
+    // 渲染卡牌
+    function renderCard(card, options = {}) {
+      const { small, selected, disabled, onClick } = options;
+      const sizeClass = small ? 'small' : '';
+      const selectedClass = selected ? 'selected' : '';
+      const disabledClass = disabled ? 'disabled' : '';
+      
+      let typeClass = 'normal';
+      let content = '';
+      
+      if (card.type === 'wizard') {
+        typeClass = 'wizard';
+        content = `<div class="special-icon">🧙</div><div class="special-name">巫师</div>`;
+      } else if (card.type === 'jester') {
+        typeClass = 'jester';
+        content = `<div class="special-icon">🃏</div><div class="special-name">小丑</div>`;
+      } else {
+        const colorClass = SUIT_COLORS[card.suit];
+        content = `<div class="rank ${colorClass}">${card.rank}</div><div class="suit ${colorClass}">${card.suit}</div>`;
+      }
+      
+      const clickHandler = onClick && !disabled ? `onclick="${onClick}"` : '';
+      
+      return `<div class="card ${typeClass} ${sizeClass} ${selectedClass} ${disabledClass}" ${clickHandler}>${content}</div>`;
+    }
+
+    // 渲染主页
+    function renderHome() {
+      return `
+        <div class="home-screen">
+          <div class="home-card">
+            <h1>🧙 巫师牌 Online</h1>
+            <p>与朋友们联机对战</p>
+            
+            <input type="text" id="playerNameInput" placeholder="输入你的昵称" maxlength="12" value="${playerName}">
+            
+            <button class="btn btn-primary" onclick="createRoom()">创建房间</button>
+            
+            <div class="join-row" style="margin-top: 15px;">
+              <input type="text" id="roomCodeInput" placeholder="房间码" maxlength="6">
+              <button class="btn btn-success" onclick="joinRoom()">加入</button>
+            </div>
+            
+            <div id="errorMsg" class="error-msg hidden"></div>
+            
+            <details>
+              <summary>游戏规则</summary>
+              <div style="margin-top: 10px; line-height: 1.6;">
+                <p>• 牌组：52张扑克 + 4巫师 + 4小丑</p>
+                <p>• 巫师🧙最大，小丑🃏最小</p>
+                <p>• 每轮预测能赢几墩</p>
+                <p>• 预测正确 +20 + 每墩10分</p>
+                <p>• 预测错误 -每差一墩10分</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      `;
+    }
+
+    // 渲染大厅
+    function renderLobby() {
+      if (!gameState) return '<div class="lobby-screen"><div class="lobby-card">加载中...</div></div>';
+      
+      const playersList = gameState.players.map((p, i) => `
+        <div class="player-item ${p.id === playerId ? 'me' : ''}">
+          <span>${p.name} ${p.id === playerId ? '(你)' : ''}</span>
+          ${p.isHost ? '<span class="host-badge">房主</span>' : ''}
+        </div>
+      `).join('');
+      
+      const isHost = gameState.players[0]?.id === playerId;
+      const canStart = gameState.players.length >= 2;
+      
+      return `
+        <div class="lobby-screen">
+          <div class="lobby-card">
+            <h2>等待玩家加入</h2>
+            
+            <div class="room-code-box">
+              <div class="label">房间码</div>
+              <div class="code">${roomCode}</div>
+              <div class="hint">分享给朋友加入游戏</div>
+            </div>
+            
+            <div class="player-list">
+              <div style="font-size: 14px; margin-bottom: 10px;">玩家 (${gameState.players.length}/4)</div>
+              ${playersList}
+            </div>
+            
+            ${isHost ? `
+              <button class="btn btn-primary" onclick="startGame()" ${canStart ? '' : 'disabled'}>
+                ${canStart ? '开始游戏' : '等待更多玩家...'}
+              </button>
+            ` : `
+              <div class="waiting-msg">等待房主开始游戏...</div>
+            `}
+            
+            <button class="btn btn-outline" style="width: 100%; margin-top: 10px;" onclick="leaveRoom()">离开房间</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 渲染游戏
+    function renderGame() {
+      if (!gameState) return '<div class="container">加载中...</div>';
+      
+      const numPlayers = gameState.players.length;
+      const maxRounds = Math.floor(60 / numPlayers);
+      const isMyTurn = myIndex === gameState.currentPlayer;
+      const currentPlayerName = gameState.players[gameState.currentPlayer]?.name || '';
+      
+      // 分数板
+      const scoreBoard = gameState.players.map((p, i) => `
+        <div class="player-score ${i === gameState.currentPlayer ? 'current' : ''} ${p.id === playerId ? 'me' : ''}">
+          <div class="name">${p.name} ${p.id === playerId ? '(你)' : ''}</div>
+          <div class="stats">分: ${p.score} | 叫: ${p.bid !== null ? p.bid : '?'} | 得: ${p.tricks}</div>
+        </div>
+      `).join('');
+      
+      // 出牌区
+      const trickCards = (gameState.currentTrick || []).map(play => `
+        <div class="trick-card-wrapper">
+          ${renderCard(play.card, { small: true })}
+          <div class="player-name">${gameState.players[play.player]?.name}</div>
+        </div>
+      `).join('');
+      
+      // 手牌
+      const myHand = myIndex >= 0 ? (gameState.players[myIndex]?.hand || []) : [];
+      const playableCards = getPlayableCards();
+      const handCards = myHand.map((card, i) => {
+        const isPlayable = playableCards.some(c => c.id === card.id);
+        const isSelected = selectedCard?.id === card.id;
+        const canClick = gameState.phase === 'playing' && isMyTurn && isPlayable;
+        return renderCard(card, {
+          selected: isSelected,
+          disabled: !canClick,
+          onClick: canClick ? `handleCardClick('${card.id}')` : null
+        });
+      }).join('');
+      
+      // 叫牌区
+      let bidArea = '';
+      if (gameState.phase === 'bidding' && isMyTurn) {
+        const totalBids = gameState.players.reduce((sum, p) => sum + (p.bid || 0), 0);
+        const isLastBidder = myIndex === gameState.dealer;
+        
+        const bidButtons = Array.from({ length: gameState.round + 1 }, (_, i) => {
+          const forbidden = isLastBidder && totalBids + i === gameState.round;
+          return `<button class="bid-btn" onclick="handleBid(${i})" ${forbidden ? 'disabled' : ''} title="${forbidden ? '最后一人不能让总预测等于牌数' : ''}">${i}</button>`;
+        }).join('');
+        
+        bidArea = `
+          <div class="bid-area">
+            <div>请预测你能赢几墩（0-${gameState.round}）：</div>
+            <div class="bid-buttons">${bidButtons}</div>
+          </div>
+        `;
+      }
+      
+      // 轮次结算
+      if (gameState.phase === 'roundEnd') {
+        const isHost = gameState.players[0]?.id === playerId;
+        const tableRows = gameState.players.map(p => {
+          const roundScore = calculateScore(p.bid, p.tricks);
+          const scoreClass = roundScore >= 0 ? 'positive' : 'negative';
+          return `
+            <tr class="${p.id === playerId ? 'me' : ''}">
+              <td>${p.name}</td>
+              <td>${p.bid}</td>
+              <td>${p.tricks}</td>
+              <td class="${scoreClass}">${roundScore > 0 ? '+' : ''}${roundScore}</td>
+              <td style="font-weight: bold;">${p.score}</td>
+            </tr>
+          `;
+        }).join('');
+        
+        return `
+          <div class="container">
+            <div class="round-end">
+              <h2>第 ${gameState.round} 轮结束</h2>
+              <table class="score-table">
+                <thead>
+                  <tr><th>玩家</th><th>预测</th><th>实际</th><th>本轮</th><th>总分</th></tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+              </table>
+              ${isHost ? `
+                <button class="btn btn-primary" style="margin-top: 30px;" onclick="nextRound()">
+                  ${gameState.round >= maxRounds ? '查看最终结果' : '下一轮'}
+                </button>
+              ` : '<div class="waiting-msg">等待房主继续...</div>'}
+            </div>
+          </div>
+        `;
+      }
+      
+      // 游戏结束
+      if (gameState.phase === 'gameEnd') {
+        const isHost = gameState.players[0]?.id === playerId;
+        const sorted = [...gameState.players].sort((a, b) => b.score - a.score);
+        const rankings = sorted.map((p, i) => {
+          const icons = ['🏆', '🥈', '🥉', ''];
+          return `
+            <div class="rank-item ${i === 0 ? 'first' : ''} ${p.id === playerId ? 'me' : ''}">
+              <span class="rank-icon">${icons[i] || ''}</span>
+              <span class="rank-name">${p.name}</span>
+              <span class="rank-score">${p.score} 分</span>
+            </div>
+          `;
+        }).join('');
+        
+        return `
+          <div class="container">
+            <div class="game-end">
+              <h2>🎉 游戏结束 🎉</h2>
+              <div class="final-ranking">${rankings}</div>
+              ${isHost ? '<button class="btn btn-primary" style="margin-top: 30px;" onclick="playAgain()">再来一局</button>' : ''}
+              <button class="btn btn-outline" style="margin-top: 15px;" onclick="leaveRoom()">离开房间</button>
+            </div>
+          </div>
+        `;
+      }
+      
+      // 正常游戏界面
+      const trumpDisplay = gameState.trumpSuit 
+        ? `<span class="trump-suit ${SUIT_COLORS[gameState.trumpSuit]}">${gameState.trumpSuit}</span>` 
+        : '无';
+      
+      return `
+        <div class="container">
+          <div class="game-header">
+            <h2 style="margin: 0;">🧙 巫师牌</h2>
+            <div style="font-size: 14px; opacity: 0.8;">房间: ${roomCode}</div>
+          </div>
+          
+          <div class="info-bar">
+            <div>第 ${gameState.round} / ${maxRounds} 轮</div>
+            <div>王牌: ${trumpDisplay}</div>
+            <div class="turn-indicator ${isMyTurn ? 'my-turn' : ''}">
+              ${isMyTurn ? '你的回合' : `等待 ${currentPlayerName}`}
+            </div>
+          </div>
+          
+          <div class="score-board">${scoreBoard}</div>
+          
+          <div class="trick-area">
+            <div class="title">出牌区</div>
+            <div class="trick-cards">${trickCards}</div>
+          </div>
+          
+          ${bidArea}
+          
+          <div class="hand-area">
+            <div class="title">你的手牌</div>
+            <div class="hand-cards">${handCards}</div>
+            ${gameState.phase === 'playing' && isMyTurn && selectedCard ? '<div class="play-hint">再次点击确认出牌</div>' : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // 获取可出的牌
+    function getPlayableCards() {
+      if (!gameState || gameState.phase !== 'playing' || myIndex !== gameState.currentPlayer) return [];
+      
+      const hand = gameState.players[myIndex]?.hand || [];
+      if (!gameState.currentTrick || gameState.currentTrick.length === 0 || !gameState.leadSuit) return hand;
+      
+      const followCards = hand.filter(c => c.type === 'normal' && c.suit === gameState.leadSuit);
+      if (followCards.length > 0) {
+        return [...followCards, ...hand.filter(c => c.type !== 'normal')];
+      }
+      return hand;
+    }
+
+    // 渲染应用
+    function render() {
+      const app = document.getElementById('app');
+      if (!roomCode) {
+        app.innerHTML = renderHome();
+      } else if (!gameState || gameState.phase === 'waiting') {
+        app.innerHTML = renderLobby();
+      } else {
+        app.innerHTML = renderGame();
+      }
+    }
+
+    // 显示错误
+    function showError(msg) {
+      const errorEl = document.getElementById('errorMsg');
+      if (errorEl) {
+        errorEl.textContent = msg;
+        errorEl.classList.remove('hidden');
+      } else {
+        alert(msg);
+      }
+    }
+
+    // 创建房间
+    async function createRoom() {
+      playerName = document.getElementById('playerNameInput')?.value?.trim() || '';
+      if (!playerName) {
+        showError('请输入你的昵称');
+        return;
+      }
+      
+      const code = generateRoomCode();
+      const initialState = {
+        roomCode: code,
+        phase: 'waiting',
+        players: [{
+          id: playerId,
+          name: playerName,
+          hand: [],
+          bid: null,
+          tricks: 0,
+          score: 0,
+          isHost: true,
+        }],
+        round: 0,
+        dealer: 0,
+        currentPlayer: 0,
+        trumpCard: null,
+        trumpSuit: null,
+        currentTrick: [],
+        leadSuit: null,
+        seed: Date.now(),
+      };
+      
+      try {
+        await db.ref(`rooms/${code}`).set(initialState);
+        roomCode = code;
+        subscribeToRoom();
+        render();
+      } catch (e) {
+        showError('创建房间失败: ' + e.message);
+      }
+    }
+
+    // 加入房间
+    async function joinRoom() {
+      playerName = document.getElementById('playerNameInput')?.value?.trim() || '';
+      const inputCode = document.getElementById('roomCodeInput')?.value?.trim()?.toUpperCase() || '';
+      
+      if (!playerName) {
+        showError('请输入你的昵称');
+        return;
+      }
+      if (!inputCode) {
+        showError('请输入房间码');
+        return;
+      }
+      
+      try {
+        const snapshot = await db.ref(`rooms/${inputCode}`).once('value');
+        const state = snapshot.val();
+        
+        if (!state) {
+          showError('房间不存在');
+          return;
+        }
+        
+        if (state.phase !== 'waiting') {
+          showError('游戏已经开始，无法加入');
+          return;
+        }
+        
+        if (state.players.length >= 4) {
+          showError('房间已满');
+          return;
+        }
+        
+        // 检查是否已在房间
+        const existingIdx = state.players.findIndex(p => p.id === playerId);
+        if (existingIdx >= 0) {
+          state.players[existingIdx].name = playerName;
+        } else {
+          state.players.push({
+            id: playerId,
+            name: playerName,
+            hand: [],
+            bid: null,
+            tricks: 0,
+            score: 0,
+            isHost: false,
+          });
+        }
+        
+        await db.ref(`rooms/${inputCode}`).set(state);
+        roomCode = inputCode;
+        subscribeToRoom();
+        render();
+      } catch (e) {
+        showError('加入房间失败: ' + e.message);
+      }
+    }
+
+    // 订阅房间更新
+    function subscribeToRoom() {
+      if (unsubscribe) unsubscribe();
+      
+      const roomRef = db.ref(`rooms/${roomCode}`);
+      unsubscribe = () => roomRef.off();
+      
+      roomRef.on('value', (snapshot) => {
+        gameState = snapshot.val();
+        if (gameState) {
+          myIndex = gameState.players.findIndex(p => p.id === playerId);
+        }
+        render();
+      });
+    }
+
+    // 开始游戏
+    async function startGame() {
+      if (!gameState || gameState.players.length < 2) {
+        showError('至少需要2名玩家');
+        return;
+      }
+      
+      const newState = JSON.parse(JSON.stringify(gameState));
+      newState.seed = Date.now();
+      dealCards(newState, 1, 0);
+      
+      await db.ref(`rooms/${roomCode}`).set(newState);
+    }
+
+    // 叫牌
+    async function handleBid(bidAmount) {
+      if (myIndex !== gameState.currentPlayer) return;
+      
+      const newState = JSON.parse(JSON.stringify(gameState));
+      newState.players[myIndex].bid = bidAmount;
+      
+      const numPlayers = newState.players.length;
+      
+      if (newState.players.every(p => p.bid !== null)) {
+        newState.phase = 'playing';
+        newState.currentPlayer = (newState.dealer + 1) % numPlayers;
+      } else {
+        newState.currentPlayer = (newState.currentPlayer + 1) % numPlayers;
+      }
+      
+      await db.ref(`rooms/${roomCode}`).set(newState);
+    }
+
+    // 点击手牌
+    function handleCardClick(cardId) {
+      const hand = gameState.players[myIndex]?.hand || [];
+      const card = hand.find(c => c.id === cardId);
+      if (!card) return;
+      
+      if (selectedCard?.id === cardId) {
+        handlePlay(card);
+      } else {
+        selectedCard = card;
+        render();
+      }
+    }
+
+    // 出牌
+    async function handlePlay(card) {
+      if (myIndex !== gameState.currentPlayer) return;
+      
+      const newState = JSON.parse(JSON.stringify(gameState));
+      const playerHand = newState.players[myIndex].hand;
+      const cardIndex = playerHand.findIndex(c => c.id === card.id);
+      
+      if (cardIndex === -1) return;
+      
+      // 检查跟牌
+      const leadSuit = newState.leadSuit;
+      if (leadSuit && card.type === 'normal' && card.suit !== leadSuit) {
+        const hasLeadSuit = playerHand.some(c => c.type === 'normal' && c.suit === leadSuit);
+        if (hasLeadSuit) {
+          alert('必须跟牌！');
+          return;
+        }
+      }
+      
+      // 出牌
+      playerHand.splice(cardIndex, 1);
+      if (!newState.currentTrick) newState.currentTrick = [];
+      newState.currentTrick.push({ player: myIndex, card });
+      
+      // 设置首出花色
+      if (newState.currentTrick.length === 1) {
+        newState.leadSuit = card.type === 'normal' ? card.suit : null;
+      } else if (!newState.leadSuit && card.type === 'normal') {
+        newState.leadSuit = card.suit;
+      }
+      
+      const numPlayers = newState.players.length;
+      
+      // 一墩结束
+      if (newState.currentTrick.length === numPlayers) {
+        const winnerIndex = determineTrickWinner(newState.currentTrick, newState.trumpSuit);
+        const winner = newState.currentTrick[winnerIndex].player;
+        newState.players[winner].tricks++;
+        
+        if (newState.players[0].hand.length === 0) {
+          // 轮次结束
+          newState.players = newState.players.map(p => ({
+            ...p,
+            score: p.score + calculateScore(p.bid, p.tricks)
+          }));
+          newState.phase = 'roundEnd';
+        } else {
+          newState.currentTrick = [];
+          newState.leadSuit = null;
+          newState.currentPlayer = winner;
+        }
+      } else {
+        newState.currentPlayer = (newState.currentPlayer + 1) % numPlayers;
+      }
+      
+      selectedCard = null;
+      await db.ref(`rooms/${roomCode}`).set(newState);
+    }
+
+    // 下一轮
+    async function nextRound() {
+      const newState = JSON.parse(JSON.stringify(gameState));
+      const numPlayers = newState.players.length;
+      const maxRounds = Math.floor(60 / numPlayers);
+      
+      if (newState.round >= maxRounds) {
+        newState.phase = 'gameEnd';
+      } else {
+        const newRound = newState.round + 1;
+        const newDealer = (newState.dealer + 1) % numPlayers;
+        newState.seed = Date.now();
+        dealCards(newState, newRound, newDealer);
+      }
+      
+      await db.ref(`rooms/${roomCode}`).set(newState);
+    }
+
+    // 再来一局
+    async function playAgain() {
+      const newState = JSON.parse(JSON.stringify(gameState));
+      newState.players = newState.players.map(p => ({
+        ...p,
+        hand: [],
+        bid: null,
+        tricks: 0,
+        score: 0,
+      }));
+      newState.phase = 'waiting';
+      newState.round = 0;
+      newState.currentTrick = [];
+      
+      await db.ref(`rooms/${roomCode}`).set(newState);
+    }
+
+    // 离开房间
+    function leaveRoom() {
+      if (unsubscribe) unsubscribe();
+      roomCode = '';
+      gameState = null;
+      myIndex = -1;
+      selectedCard = null;
+      render();
+    }
+
+    // 初始化
+    render();
+  </script>
+</body>
+</html>
